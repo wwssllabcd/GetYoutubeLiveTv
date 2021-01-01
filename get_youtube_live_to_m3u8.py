@@ -6,7 +6,6 @@ from EricCorePy.Utility.UrlUtility import UrlUtility
 from EricCorePy.Utility.ReUtility import ReUtility
 from EricCorePy.Utility.M3u8 import M3u8
 
-
 crlf = "\n"
 
 urlList = [
@@ -63,20 +62,22 @@ urlList = [
     ,("India Today", "https://www.youtube.com/watch?v=8UJMH_VIRhU")
 ]
 
-urlU = UrlUtility()
-reu = ReUtility()
-m3u8U = M3u8()
+def gen_m3u8():
+    urlU = UrlUtility()
+    reu = ReUtility()
+    m3u8U = M3u8()
 
-resList = []
-for urlObj in urlList:
-    htmldata = urlU.get_url_data(urlObj[1])
-    res = reu.get_between_string(htmldata, "m3u8", "http", "m3u8")
-    res = res.replace('\/', '/')
-    resList.append((urlObj[0], res))
+    resList = []
+    for urlObj in urlList:
+        htmldata = urlU.get_url_data(urlObj[1])
+        res = reu.get_between_string(htmldata, "m3u8", "http", "m3u8")
+        res = res.replace('\/', '/')
+        resList.append((urlObj[0], res))
 
-m3u8 = m3u8U.get_m3u8_head_string()
-for obj in resList:
-    m3u8 += m3u8U.get_m3u8_item_string(obj[0], obj[1])
+    m3u8 = m3u8U.get_m3u8_head_string()
+    for obj in resList:
+        m3u8 += m3u8U.get_m3u8_item_string(obj[0], obj[1])
 
-print(m3u8)
+    print(m3u8)
+    return m3u8
 
