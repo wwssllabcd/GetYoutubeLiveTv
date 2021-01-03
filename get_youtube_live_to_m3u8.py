@@ -1,10 +1,13 @@
 
 import sys
+
 sys.path.append(r'D:\GitHub\Python')
+
 from EricCorePy.Utility.EricUtility import EricUtility
 from EricCorePy.Utility.UrlUtility import UrlUtility
 from EricCorePy.Utility.ReUtility import ReUtility
 from EricCorePy.Utility.M3u8 import M3u8
+from EricCorePy.Utility.MyThread import MyThread
 
 crlf = "\n"
 
@@ -62,18 +65,31 @@ urlList = [
     ,("India Today", "https://www.youtube.com/watch?v=8UJMH_VIRhU")
 ]
 
-def gen_m3u8():
+def get_html_data(url):
     urlU = UrlUtility()
-    reu = ReUtility()
-    m3u8U = M3u8()
+    htmldata = urlU.get_url_data(url)
+    return htmldata
 
+def gen_m3u8():
+    
+    reu = ReUtility()
+    threads = []
     resList = []
     for urlObj in urlList:
-        htmldata = urlU.get_url_data(urlObj[1])
+        t = MyThread(get_html_data, args = (urlObj[1], ) )
+        t.start()
+        threads.append((urlObj[0], t))
+
+    for item in threads:
+        name = item[0]
+        t = item[1]
+        t.join()
+        htmldata = t.get_result()
         res = reu.get_between_string(htmldata, "m3u8", "http", "m3u8")
         res = res.replace('\/', '/')
-        resList.append((urlObj[0], res))
+        resList.append((name, res))
 
+    m3u8U = M3u8()
     m3u8 = m3u8U.get_m3u8_head_string()
     for obj in resList:
         m3u8 += m3u8U.get_m3u8_item_string(obj[0], obj[1])
